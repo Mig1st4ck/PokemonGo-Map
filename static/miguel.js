@@ -64,7 +64,7 @@ function sendMyNotification(title, text, icon, item) {
 }
 
 function setupLayout() {
-    var ulPocos = $('<ul id="pokemons" class="links">')
+    var ulPocos = $('<div id="pokemons" class="links">')
     var navPocos = $('<nav id="nav-pocos"></nav>').css({
         'zIndex': 10,
         'position': 'absolute',
@@ -83,7 +83,7 @@ function setupLayout() {
     $('#header a:first').after(newA);
 
     newA.click(function (){
-        navPocos.toggleClass('visible').toggle();
+        navPocos.toggle();
     });
 
     google.maps.event.addListener(map, "rightclick", function(event) {
@@ -104,14 +104,53 @@ function updateList() {
         var div = list.find('.'+i);
         if (div.length === 0) {
             var show = parseInt(localStorage.getItem(i + '_' + item.item.pokemon_name));
-            var background = isNaN(show) || show >= 3 ? 'red': '#ccc';
-            div = $('<li>').css({
-                'list-style': 'none',
-                background: background
-            }).append($('<a>')
+            var showNotif = isNaN(show) || show >= 3 ? 'checked=""': '';
+            /* 
+            <div class="form-control switch-container">
+				<h3>Pokémon</h3>
+				<div class="onoffswitch">
+					<input id="pokemon-switch" type="checkbox" name="pokemon-switch" class="onoffswitch-checkbox" checked="">
+					<label class="onoffswitch-label" for="pokemon-switch">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+				</div>
+			</div>
+             */
+            var onOff = $(`<div class="onoffswitch" style="margin-top: 10px">
+					<input id="poco_${i}" type="checkbox" name="poco_${i}" class="onoffswitch-checkbox" ${showNotif}>
+					<label class="onoffswitch-label" for="poco_${i}">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+				</div>`);
+            onOff.find('input').change(function(){
+                localStorage.setItem(i + '_' + item.item.pokemon_name, $(this).is(':checked') ? '3': '1');
+            });
+            div = $('<div>')
+                .addClass('form-control switch-container')
+                .append($('<a>')
                     .attr('href', '#' + i)
-                    .append($('<img>').attr('src', 'static/icons/'+item.item.pokemon_id+'.png'))
-                    .append(i + ' ' + item.item.pokemon_name)
+                    .append($('<h3>')
+                        .append($('<img>').attr('src', 'static/icons/'+item.item.pokemon_id+'.png'))
+                        .append(i + ' ' + item.item.pokemon_name)
+                        .data(item.item)
+                        .click(function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            var new_id = pad3($(this).data().pokemon_id);
+                            var rnd = pokemons[new_id].pos++;
+                            if (rnd > pokemons[new_id].pocos.length - 1) {
+                                rnd = 0;
+                            }
+                            var item = map_pokemons[pokemons[new_id].pocos[rnd]];
+                            var latlng = new google.maps.LatLng(item.latitude, item.longitude);
+
+                            map.setCenter(latlng);
+                            // console.log("click ", item, latlng);
+                        })
+                    )
+                    .append(onOff)
                     .append($('<span>').css({
                         'float': 'right',
                         'margin-top': '7px',
@@ -119,22 +158,7 @@ function updateList() {
                         'background': '#fff',
                         'color': '#222',
                         'border-radius': '10px'
-                    }).addClass('badge ' + i).text(item.count)))
-                    .data(item.item)
-                    .click(function(event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        var new_id = pad3($(this).data().pokemon_id);
-                        var rnd = pokemons[new_id].pos++;
-                        if (rnd > pokemons[new_id].pocos.length - 1) {
-                            rnd = 0;
-                        }
-                        var item = map_pokemons[pokemons[new_id].pocos[rnd]];
-                        var latlng = new google.maps.LatLng(item.latitude, item.longitude);
-
-                        map.setCenter(latlng);
-                        // console.log("click ", item, latlng);
-                    });
+                    }).addClass('badge ' + i).text(item.count)));
             list.append(div);
         } else {
             $.each(item.pocos, function(i, val){

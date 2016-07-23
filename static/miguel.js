@@ -73,6 +73,7 @@ function setupLayout() {
         'top': '50px',
         'bottom': '0px',
         'padding': '15px',
+        'overflow': 'auto',
     }).append(ulPocos);
 
     var newA = $('<a>').attr({
@@ -82,7 +83,7 @@ function setupLayout() {
     $('#header a:first').after(newA);
 
     newA.click(function (){
-        navPocos.toggleClass('visible');
+        navPocos.toggleClass('visible').toggle();
     });
 
     google.maps.event.addListener(map, "rightclick", function(event) {
@@ -120,14 +121,16 @@ function updateList() {
                         'border-radius': '10px'
                     }).addClass('badge ' + i).text(item.count)))
                     .data(item.item)
-                    .click(function() {
+                    .click(function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
                         var new_id = pad3($(this).data().pokemon_id);
                         var rnd = pokemons[new_id].pos++;
                         if (rnd > pokemons[new_id].pocos.length - 1) {
                             rnd = 0;
                         }
-                        var item = pokemons[new_id].pocos[rnd].split(',');
-                        var latlng = new google.maps.LatLng(item[0], item[1]);
+                        var item = map_pokemons[pokemons[new_id].pocos[rnd]];
+                        var latlng = new google.maps.LatLng(item.latitude, item.longitude);
 
                         map.setCenter(latlng);
                         // console.log("click ", item, latlng);

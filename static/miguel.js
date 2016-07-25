@@ -1,3 +1,5 @@
+
+
 function pad(number) {
     return number <= 99 ? ("0" + number).slice(-2) : number;
 };
@@ -78,7 +80,7 @@ function setupLayout() {
 
     var newA = $('<a>').attr({
         'href': '#nav-pocos'
-    }).html('Show Pockemons');
+    }).html('List');
     $('#nav').after(navPocos);
     $('#header a:first').after(newA);
 

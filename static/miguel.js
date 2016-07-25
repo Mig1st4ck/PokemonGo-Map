@@ -42,8 +42,20 @@ function setupMiguelPokemon(item) {
     pokemons[new_id].count = pokemons[new_id].pocos.length;
 
 }
-
+function isNewNotificationSupported() {
+    if (!window.Notification || !Notification.requestPermission)
+        return false;
+    try {
+        new Notification('');
+    } catch (e) {
+        if (e.name == 'TypeError')
+            return false;
+    }
+    return true;
+}
 function sendMyNotification(title, text, icon, item) {
+    if (!isNewNotificationSupported())
+        return;
     if (Notification.permission !== "granted") {
         Notification.requestPermission();
     } else {

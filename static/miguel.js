@@ -17,7 +17,7 @@ function setupMiguelPokemon(item) {
     if (show > 0) {
         var disappear_date = new Date(item.disappear_time);
         var desapear_at = `Disappears at ${pad(disappear_date.getHours())}:${pad(disappear_date.getMinutes())}:${pad(disappear_date.getSeconds())}`;
-        console.log(new_id, item.pokemon_name, desapear_at);
+        // console.log(new_id, item.pokemon_name, desapear_at);
         if (show === 3){
             // todo Change to use the new notifications
             sendMyNotification('A wild ' + item.pokemon_name + ' appeared!', desapear_at, 'static/icons/' + item.pokemon_id + '.png', item);
@@ -45,15 +45,15 @@ function sendMyNotification(title, text, icon, item) {
     if (Notification.permission !== "granted") {
         Notification.requestPermission();
     } else {
+        if(localStorage.playSound === 'true'){
+          window.audio.play();
+        }
+
         var notification = new Notification(title, {
             icon: icon,
             body: text,
             sound: 'sounds/ding.mp3'
         });
-
-        if(localStorage.playSound === 'true'){
-          window.audio.play();
-        }
 
         notification.onclick = function () {
             notification.close();
@@ -132,6 +132,7 @@ function updateList() {
                 .append($('<a>')
                     .attr('href', '#' + i)
                     .append($('<h3>')
+                        .css({'font-size': '1em'})
                         .append($('<img>').attr('src', 'static/icons/'+item.item.pokemon_id+'.png'))
                         .append(i + ' ' + item.item.pokemon_name)
                         .data(item.item)
@@ -143,10 +144,11 @@ function updateList() {
                             if (rnd > pokemons[new_id].pocos.length - 1) {
                                 rnd = 0;
                             }
-                            var item = map_pokemons[pokemons[new_id].pocos[rnd]];
-                            var latlng = new google.maps.LatLng(item.latitude, item.longitude);
-
-                            map.setCenter(latlng);
+                            var item = window.map_data.pokemons[pokemons[new_id].pocos[rnd]];
+                            if (item){
+                                var latlng = new google.maps.LatLng(item.latitude, item.longitude);
+                                map.setCenter(latlng);
+                            }
                             // console.log("click ", item, latlng);
                         })
                     )
@@ -162,7 +164,7 @@ function updateList() {
             list.append(div);
         } else {
             $.each(item.pocos, function(i, val){
-                if (!map_pokemons[val]){
+                if (!window.map_data.pokemons[val]){
                     var index = item.pocos.indexOf(val);
                     if (index >= 0) {
                         item.pocos.splice(index, 1);

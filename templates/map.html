@@ -171,9 +171,19 @@
 	<script>
 		var center_lat = {{lat}};
 		var center_lng = {{lng}};
+		$('#header h1').after($('<a>').css({'float':'right'}).click(function (){ $('#console-log-div').toggle(); }).html('log'));
+		function initMap2() {
+			console.log('Init', typeof initMap);
+			if (typeof initMap == 'function'){
+				initMap();
+			} else {
+				setTimeout(initMap2, 50);
+			}
+		}
 	</script>
 
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ gmaps_key }}&amp;callback=initMap&amp;libraries=places,geometry"></script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ gmaps_key }}&amp;callback=initMap2&amp;libraries=places,geometry"></script>
+	<script src="static/console-log-div.js"></script>
 	<script src="static/miguel.js"></script>
 	<script src="static/map.js"></script>
 

@@ -42,38 +42,55 @@ function setupMiguelPokemon(item) {
     pokemons[new_id].count = pokemons[new_id].pocos.length;
 
 }
+var isSupported = false;
 function isNewNotificationSupported() {
+    if (isSupported) return true;
     if (!window.Notification || !Notification.requestPermission)
         return false;
     try {
-        new Notification('');
+        var n = new Notification('');
+        setTimeout(function () {n.close();}, 200);
     } catch (e) {
         if (e.name == 'TypeError')
             return false;
     }
+    isSupported = true;
     return true;
 }
+var notifications = {};
+
 function sendMyNotification(title, text, icon, item) {
     if (!isNewNotificationSupported())
         return;
     if (Notification.permission !== "granted") {
         Notification.requestPermission();
     } else {
+        if (notifications[item.encounter_id]) 
+            return; // already notified
         if(localStorage.playSound === 'true'){
           window.audio.play();
         }
 
-        var notification = new Notification(title, {
+        notifications[item.encounter_id] = notification = new window.Notification(title, {
             icon: icon,
             body: text,
             sound: 'sounds/ding.mp3'
         });
-
-        notification.onclick = function () {
+        notifications[item.encounter_id].onclick = function () {
+            window.focus();
             notification.close();
+            if (notifications[item.encounter_id]){
+                delete notifications[item.encounter_id];
+            }
             var latlng = new google.maps.LatLng(item.latitude, item.longitude);
             window.map.setCenter(latlng);
         };
+        setTimeout(function(){
+            if (notifications[item.encounter_id]) {
+                notifications[item.encounter_id].close();
+                delete notifications[item.encounter_id];
+            }
+        }, 15000);
     }
 }
 
@@ -197,3 +214,11 @@ var clear = setInterval(function(){
     }
 }, 500);
 setInterval(updateList, 5000);
+/*
+var mig = window.Notification;
+window.Notification = function (){
+    console.log('Call Notifications', arguments);
+}
+window.Notification.permission = 'granted';
+isNewNotificationSupported = function () { return true; }
+*/

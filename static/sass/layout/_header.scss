@@ -16,6 +16,7 @@
 		top: 0;
 		width: 100%;
 		z-index: _misc(z-index-base) + 1;
+		@include noSelect();
 
 		> h1 {
 			color: _palette(accent2, fg-bold);
@@ -42,7 +43,7 @@
 			}
 
 			&[href="#nav"] {
-				@include icon('\f0b0');
+				@include icon('\f013');
 				-webkit-tap-highlight-color: rgba(0,0,0,0);
 
 				&:before {
@@ -56,8 +57,19 @@
 				margin-left: 0.5em;
 			}
 
-			&:last-child {
-				padding-right: 1.25em;
+			&[href="#stats"] {
+				@include icon('\f080');
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+
+				&:before {
+					margin: 0 0.5em 0 0;
+				}
+			}
+
+			& + a[href="#stats"]:last-child {
+				border-left: solid 1px _palette(accent2, border);
+				padding-left: 1.25em;
+				margin-left: 0.5em;
 			}
 
 			@include breakpoint(small) {
@@ -68,8 +80,15 @@
 					margin-left: 0.25em;
 				}
 
-				&:last-child {
-					padding-right: 1em;
+				& + a[href="#stats"]:last-child {
+					padding-left: 1em;
+					margin-left: 0.25em;
+				}
+			}
+
+			@include breakpoint(xsmall) {
+				& > .label {
+					display: none;
 				}
 			}
 		}
